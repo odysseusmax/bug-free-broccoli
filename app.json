@@ -1,0 +1,36 @@
+{
+  "name": "Bot-Status",
+  "description": "A user bot for stat telegram bots online status",
+  "repository": "https://github.com/FayasNoushad/Bot-Status-UserBot",
+  "keywords": ["telegram", "bot status", "with user","update channel"],
+  "env": {
+    "API_ID": {
+      "description": "Your APP_ID from https://my.telegram.org/apps ",
+      "value": ""
+    },
+    "API_HASH": {
+      "description": "Your API_HASH from https://my.telegram.org/apps",
+      "value": ""
+    },
+    "BOT_OWNER": {
+      "description": "Your username without '@'",
+      "value": ""
+    },
+    "BOTS": {
+      "description": "Your all bots username without '@' with a space 1 to another",
+      "value": ""
+    },
+    "UPDATE_CHANNEL": {
+      "description": "Your channel username without '@'",
+      "value": ""
+    },
+    "STATUS_MESSAGE_ID": {
+      "description": "Message id of your channel bot status message",
+      "value": ""
+    },
+    "SESSION_STRING":{
+      "description": "Your session strings",
+      "value": ""
+    }
+  }
+}

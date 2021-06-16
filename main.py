@@ -1,53 +1,77 @@
 import os
 import time
+import pytz
 import datetime
+from pyrogram import Client
 
-import pyrogram
+SESSION_STRING = os.environ.get("SESSION_STRING")
+API_ID = int(os.environ.get("API_ID"))
+API_HASH = os.environ.get("API_HASH")
+BOTS = [i.strip() for i in os.environ.get("BOTS").split(' ')]
+BOT_OWNER = os.environ.get("BOT_OWNER")
+UPDATE_CHANNEL = int(os.environ.get("UPDATE_CHANNEL"))
+MESSAGE_ID = int(os.environ.get("MESSAGE_ID"))
+TIME_LIMIT = int(os.environ.get("TIME_LIMIT", "300"))
+SLEEP_TIME = int(os.environ.get("SLEEP_TIME", "30"))
+HEADING = os.environ.get("HEADING", "--**Bots Online Status**--")
+ATTACH_LINK = os.environ.get("ATTACH_LINK", "")
 
-user_session_string = os.environ.get("user_session_string")
-bots = [i.strip() for i in os.environ.get("bots").split(' ')]
-bot_owner = os.environ.get("bot_owner")
-update_channel = os.environ.get("update_channel")
-status_message_id = int(os.environ.get("status_message_id"))
-api_id = int(os.environ.get("api_id"))
-api_hash = os.environ.get("api_hash")
-
-user_client = pyrogram.Client(
-    user_session_string, api_id=api_id, api_hash=api_hash)
-
+User = Client(
+    SESSION_STRING,
+    api_id=API_ID,
+    api_hash=API_HASH
+)
 
 def main():
-    with user_client:
+    with User:
         while True:
             print("[INFO] starting to check uptime..")
-            edit_text = f"@{update_channel} Bot's Uptime Status.(Updated every 15 mins)\n\n"
-            for bot in bots:
+            if ATTACH_LINK:
+                hide_preview = False
+                status_text = f"[\u2063]({ATTACH_LINK})" + HEADING + "\n"
+            else:
+                hide_preview = True
+                status_text = HEADING + "\n"
+            for bot in BOTS:
                 print(f"[INFO] checking @{bot}")
-                snt = user_client.send_message(bot, '/start')
-
-                time.sleep(15)
-
-                msg = user_client.get_history(bot, 1)[0]
-                if snt.message_id == msg.message_id:
+                start_message = User.send_message(
+                    chat_id=bot,
+                    text='/start'
+                )
+                time.sleep(SLEEP_TIME)
+                message = User.get_history(bot, 1)[0]
+                if start_message.message_id == message.message_id:
                     print(f"[WARNING] @{bot} is down")
-                    edit_text += f"@{bot} status: `Down`\n\n"
-                    user_client.send_message(bot_owner,
-                                             f"@{bot} status: `Down`")
+                    status_text += f"\n🤖 **Bot :-** [{bot}](https://telegram.me/{bot})" \
+                                   f"\n**⚜ Status :-** `Offline` ❎\n"
+                    User.send_message(
+                        chat_id=BOT_OWNER,
+                        text=f"@{bot} status: `Down`"
+                    )
                 else:
                     print(f"[INFO] all good with @{bot}")
-                    edit_text += f"@{bot} status: `Up`\n\n"
-                user_client.read_history(bot)
-
-            utc_now = datetime.datetime.utcnow()
-            ist_now = utc_now + datetime.timedelta(minutes=30, hours=5)
-
-            edit_text += f"__last checked on \n{str(utc_now)} UTC\n{ist_now} IST__"
-
-            user_client.edit_message_text(update_channel, status_message_id,
-                                         edit_text)
-            print(f"[INFO] everything done! sleeping for 15 mins...")
-
-            time.sleep(15 * 60)
-
+                    edit_text += f"\n🤖 **Bot :-** [{bot}](https://telegram.me/{bot})" \
+                                 f"\n**⚜ Status :-** `Online` ✅\n"
+                User.read_history(bot)
+            limit = TIME_LIMIT // 60
+            utc_now = datetime.datetime.now(pytz.timezone('UTC')).strftime("%I:%M %p %d/%m/%y")
+            status_text += f"\n**Last checked:**\n{str(utc_now)} UTC ⏰"
+            status_text += f"\n`Updated on every {limit} hours`"
+            try:
+                User.edit_message_text(
+                    chat_id=UPDATE_CHANNEL,
+                    message_id=MESSAGE_ID,
+                    text=status_text,
+                    disable_web_page_preview=hide_preview
+                )
+                print(f"[INFO] everything done! sleeping for {limit} hours...")
+            except Exception as error:
+                error_text = f"Error in editing status message.\nError :- {error}"
+                print(error_text)
+                User.send_message(
+                    chat_id=BOT_OWNER,
+                    text=error_text
+                )
+            time.sleep(TIME_LIMIT * 60)
 
 main()

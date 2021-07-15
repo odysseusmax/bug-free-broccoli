@@ -7,7 +7,7 @@ from pyrogram import Client
 SESSION_STRING = os.environ.get("SESSION_STRING")
 API_ID = int(os.environ.get("API_ID"))
 API_HASH = os.environ.get("API_HASH")
-BOTS = [i.strip() for i in os.environ.get("BOTS").split(' ')]
+BOTS = [i.strip() for i in os.environ.get("BOTS").split()]
 BOT_OWNER = os.environ.get("BOT_OWNER")
 UPDATE_CHANNEL = int(os.environ.get("UPDATE_CHANNEL"))
 MESSAGE_ID = int(os.environ.get("MESSAGE_ID"))

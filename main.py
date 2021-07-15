@@ -50,7 +50,7 @@ def main():
                     )
                 else:
                     print(f"[INFO] all good with @{bot}")
-                    edit_text += f"\n🤖 **Bot :-** [{bot}](https://telegram.me/{bot})" \
+                    status_text += f"\n🤖 **Bot :-** [{bot}](https://telegram.me/{bot})" \
                                  f"\n**⚜ Status :-** `Online` ✅\n"
                 User.read_history(bot)
             limit = TIME_LIMIT // 60
